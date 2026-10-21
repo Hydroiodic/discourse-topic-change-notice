@@ -1,0 +1,20 @@
+plugins:
+  topic_change_notice_enabled:
+    client: true
+    default: false
+  topic_change_notice_title_enabled:
+    default: true
+  topic_change_notice_category_enabled:
+    default: true
+  topic_change_notice_tags_enabled:
+    default: true
+  topic_change_notice_skip_bots:
+    default: true
+  topic_change_notice_excluded_groups:
+    type: group_list
+    list_type: compact
+    default: ""
+    allow_any: false
+    refresh: true
+  topic_change_notice_suppress_core_whispers:
+    default: true

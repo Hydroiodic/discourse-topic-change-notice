@@ -1,0 +1,9 @@
+en:
+  site_settings:
+    topic_change_notice_enabled: "Enable the topic change notice plugin: post a notice in the topic when its title, category or tags change."
+    topic_change_notice_title_enabled: "Post a notice when the title changes."
+    topic_change_notice_category_enabled: "Post a notice when the category changes."
+    topic_change_notice_tags_enabled: "Post a notice when the tags change."
+    topic_change_notice_skip_bots: "Do not post notices for changes made by the system user or bots."
+    topic_change_notice_excluded_groups: "Do not post notices for changes made by members of these groups."
+    topic_change_notice_suppress_core_whispers: "When this plugin posts a notice for a category or tag change, skip the whisper from core's create_post_for_category_and_tag_changes."

@@ -1,0 +1,16 @@
+.small-action.topic-change-notice-post {
+  .topic-change-notice {
+    display: flow-root;
+  }
+
+  .topic-change-notice__line + .topic-change-notice__line,
+  .topic-change-notice__new-title + .topic-change-notice__line {
+    margin-top: 0.25em;
+  }
+
+  .topic-change-notice__new-title {
+    margin-top: 0.25em;
+    color: var(--primary);
+    word-break: break-word;
+  }
+}

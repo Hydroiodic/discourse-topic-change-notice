@@ -1,0 +1,21 @@
+en:
+  js:
+    action_codes:
+      topic_change_notice: "Updated the topic details %{when}"
+    topic_change_notice:
+      hidden_category: "(a category you cannot see)"
+      title:
+        with_when: "Changed the title %{when} from “%{from}” to:"
+        plain: "Changed the title from “%{from}” to:"
+      category:
+        with_when: "Moved the topic from %{from} to %{to} %{when}"
+        plain: "Moved the topic from %{from} to %{to}"
+      tags_added:
+        with_when: "Added tags %{added} %{when}"
+        plain: "Added tags %{added}"
+      tags_removed:
+        with_when: "Removed tags %{removed} %{when}"
+        plain: "Removed tags %{removed}"
+      tags_changed:
+        with_when: "Changed tags from %{removed} to %{added} %{when}"
+        plain: "Changed tags from %{removed} to %{added}"

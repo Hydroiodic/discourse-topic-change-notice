@@ -1,0 +1,21 @@
+zh_CN:
+  js:
+    action_codes:
+      topic_change_notice: "%{when}修改了话题信息"
+    topic_change_notice:
+      hidden_category: "（无权查看的分类）"
+      title:
+        with_when: "%{when}将标题由『%{from}』变更为："
+        plain: "将标题由『%{from}』变更为："
+      category:
+        with_when: "%{when}将分类由 %{from} 变更为 %{to}"
+        plain: "将分类由 %{from} 变更为 %{to}"
+      tags_added:
+        with_when: "%{when}添加了标签 %{added}"
+        plain: "添加了标签 %{added}"
+      tags_removed:
+        with_when: "%{when}移除了标签 %{removed}"
+        plain: "移除了标签 %{removed}"
+      tags_changed:
+        with_when: "%{when}将标签由 %{removed} 变更为 %{added}"
+        plain: "将标签由 %{removed} 变更为 %{added}"

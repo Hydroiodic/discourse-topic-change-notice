@@ -1,0 +1,9 @@
+zh_CN:
+  site_settings:
+    topic_change_notice_enabled: "启用话题变更公示插件"
+    topic_change_notice_title_enabled: "公示标题变更"
+    topic_change_notice_category_enabled: "公示分类变更"
+    topic_change_notice_tags_enabled: "公示标签变更"
+    topic_change_notice_skip_bots: "系统用户和机器人做的修改不公示"
+    topic_change_notice_excluded_groups: "这些群组成员做的修改不公示"
+    topic_change_notice_suppress_core_whispers: "公示分类或标签变更时，不再发送 core 的 create_post_for_category_and_tag_changes 密语"
