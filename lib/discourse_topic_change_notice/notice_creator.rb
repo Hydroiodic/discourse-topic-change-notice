@@ -25,13 +25,11 @@ module ::DiscourseTopicChangeNotice
 
     def skip?
       return true if @editor.nil? || @topic.nil? || @topic.private_message?
-      # 私信与公开话题互转会同时改 archetype 和分类
       return true if @diff.key?(:archetype)
-      # "关于此分类"话题的分类不会真的改变，但 diff 里仍有记录
       return true if @topic.is_category_topic?
-      # 发布共享草稿会把话题移出共享草稿分类
       return true if SharedDraft.exists?(topic_id: @topic.id)
       return true if SiteSetting.topic_change_notice_skip_bots && @editor.bot?
+      return true if BulkAction.silent?(@editor)
       @editor.in_any_groups?(SiteSetting.topic_change_notice_excluded_groups_map)
     end
 
@@ -63,7 +61,6 @@ module ::DiscourseTopicChangeNotice
       from.is_a?(Array) ? from.sort == to.sort : from == to
     end
 
-    # 和 core 的 editing_grace_period 一致：窗口内、同一编辑者、之后没有新帖时合并到上一条同类公示
     def mergeable_notice(fields)
       window = SiteSetting.editing_grace_period
       return if window <= 0
@@ -78,7 +75,6 @@ module ::DiscourseTopicChangeNotice
           .find { |post| same_group?(post, fields) }
       return if notice.nil?
 
-      # 同一编辑者另一类的公示不算新帖，否则同时改了标题和分类之后，标题公示就合并不了了
       replied_since =
         @topic
           .posts
@@ -115,7 +111,6 @@ module ::DiscourseTopicChangeNotice
       end
     end
 
-    # 改回原值时软删公示
     def destroy(notice)
       bumped_at = @topic.reload.bumped_at
       PostDestroyer.new(Discourse.system_user, notice).destroy
@@ -133,7 +128,6 @@ module ::DiscourseTopicChangeNotice
           custom_fields: {
             CUSTOM_FIELD => changes,
           },
-          # 慢速模式检查在 skip_validations 之前，换成 system 的 guardian 才能保证公示一定发得出来
           guardian: Guardian.new(Discourse.system_user),
           skip_guardian: true,
           skip_validations: true,

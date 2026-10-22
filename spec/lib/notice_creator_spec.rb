@@ -209,21 +209,79 @@ RSpec.describe DiscourseTopicChangeNotice::NoticeCreator do
   end
 
   describe "bulk actions" do
-    it "posts a notice for a bulk category change" do
-      TopicsBulkAction.new(
-        admin,
-        [topic.id],
-        type: "change_category",
-        category_id: other_category.id,
-      ).perform!
+    fab!(:moderator)
+    fab!(:leader) { Fabricate(:user, trust_level: TrustLevel[4], refresh_auto_groups: true) }
 
-      expect(notice_data).to eq("category" => { "from" => category.id, "to" => other_category.id })
+    def bulk(user, type, **operation)
+      TopicsBulkAction.new(user, [topic.id], type: type, **operation).perform!
     end
 
-    it "posts a notice for silent bulk tag changes" do
-      TopicsBulkAction.new(admin, [topic.id], type: "change_tags", tag_ids: [tag_bar.id]).perform!
+    it "posts no notice for bulk category and tag changes by an admin" do
+      expect {
+        expect(bulk(admin, "change_category", category_id: other_category.id)).to eq([topic.id])
+        expect(bulk(admin, "change_tags", tag_ids: [tag_bar.id])).to eq([topic.id])
+        expect(bulk(admin, "append_tags", tag_ids: [tag_foo.id])).to eq([topic.id])
+        expect(bulk(admin, "manage_tags", remove_tag_ids: [tag_bar.id])).to eq([topic.id])
+        expect(bulk(admin, "remove_tags")).to eq([topic.id])
+      }.not_to change { notices.count }
 
+      expect(topic.reload.category_id).to eq(other_category.id)
+      expect(topic.tags).to be_empty
+    end
+
+    it "posts no notice for bulk changes by a moderator or a TL4 user" do
+      expect {
+        bulk(moderator, "change_category", category_id: other_category.id)
+        bulk(leader, "change_tags", tag_ids: [tag_bar.id])
+      }.not_to change { notices.count }
+
+      expect(topic.reload.category_id).to eq(other_category.id)
+      expect(topic.tags.map(&:name)).to eq(["bar"])
+    end
+
+    it "sends no core whisper for a bulk category change either" do
+      SiteSetting.create_post_for_category_and_tag_changes = true
+      SiteSetting.whispers_allowed_groups = Group::AUTO_GROUPS[:staff].to_s
+
+      bulk(admin, "change_category", category_id: other_category.id)
+
+      expect(topic.posts.where(action_code: %w[category_changed topic_change_notice])).to be_empty
+    end
+
+    it "posts notices for bulk changes by other users" do
+      author.update!(trust_level: TrustLevel[2])
+      Group.refresh_automatic_groups!
+
+      bulk(author, "change_tags", tag_ids: [tag_bar.id])
       expect(notice_data).to eq("tags" => { "from" => ["foo"], "to" => ["bar"] })
+
+      bulk(author, "change_category", category_id: other_category.id)
+      expect(notice_data).to eq(
+        "category" => {
+          "from" => category.id,
+          "to" => other_category.id,
+        },
+        "tags" => {
+          "from" => ["foo"],
+          "to" => ["bar"],
+        },
+      )
+    end
+
+    it "posts notices again for edits after a bulk action" do
+      bulk(admin, "change_tags", tag_ids: [tag_bar.id])
+
+      expect { revise(title: "A completely different topic title") }.to change { notices.count }.by(
+        1,
+      )
+    end
+
+    it "posts notices again when a bulk action raises" do
+      expect { bulk(admin, "not_an_operation") }.to raise_error(Discourse::InvalidParameters)
+
+      expect { revise(title: "A completely different topic title") }.to change { notices.count }.by(
+        1,
+      )
     end
   end
 

@@ -30,6 +30,9 @@ end
 
 require_relative "lib/discourse_topic_change_notice/notice_creator"
 require_relative "lib/discourse_topic_change_notice/notice_presenter"
+require_relative "lib/discourse_topic_change_notice/slow_mode"
+require_relative "lib/discourse_topic_change_notice/bulk_action"
+require_relative "lib/discourse_topic_change_notice/consecutive_replies"
 
 after_initialize do
   Post.register_custom_field_type(DiscourseTopicChangeNotice::CUSTOM_FIELD, :json)
@@ -94,4 +97,8 @@ after_initialize do
 
   ::PostRevisor.singleton_class.prepend OverrideCoreChangeWhispers
   ::Guardian.prepend OverrideNoticeGuardian
+  ::PostCreator.prepend DiscourseTopicChangeNotice::SlowMode::PostCreatorExtension
+  ::Guardian.prepend DiscourseTopicChangeNotice::SlowMode::GuardianExtension
+  ::TopicsBulkAction.prepend DiscourseTopicChangeNotice::BulkAction::TopicsBulkActionExtension
+  ::PostValidator.prepend DiscourseTopicChangeNotice::ConsecutiveReplies::PostValidatorExtension
 end
